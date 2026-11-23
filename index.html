@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Kho ảnh</title>
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--text:#1c1e21;--muted:#6b7280;--accent:#2563eb;--btn:#2563eb;--border:#d7dbe0;--err:#c62828;--ok:#2e7d32;--sel:#e8effd;--ov:rgba(8,10,14,.94)}
+@media (prefers-color-scheme:dark){:root{--bg:#121417;--card:#1c1f24;--text:#e6e8eb;--muted:#9aa3ad;--accent:#4c8dff;--btn:#2f6fe0;--border:#333a42;--err:#ff6b6b;--ok:#66bb6a;--sel:#26324a}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+button{touch-action:manipulation}
+.wrap{max-width:1100px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-top:16px}
+.narrow{max-width:440px;margin:8vh auto 0}
+h1{font-size:1.25rem;margin:0 0 12px}
+label{display:block;margin:12px 0 0;font-size:.9rem;color:var(--muted);overflow-wrap:anywhere}
+input{width:100%;margin-top:4px;padding:10px 12px;font:inherit;font-size:1rem;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:8px}
+input:focus{outline:2px solid var(--accent);outline-offset:0}
+button{font:inherit;cursor:pointer;border:0;border-radius:8px;padding:10px 16px;margin-top:16px;color:#fff;background:var(--btn)}
+button.ghost{background:transparent;color:var(--accent);border:1px solid var(--border)}
+button.danger{color:var(--err)}
+button:disabled{opacity:.6;cursor:wait}
+.bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.bar button{margin-top:0}
+.spacer{flex:1}
+.muted{color:var(--muted);font-size:.9rem}
+.msg{min-height:1.4em;margin:10px 0 0;font-size:.9rem;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.err{color:var(--err)}
+.msg.ok{color:var(--ok)}
+details{margin-top:18px}
+summary{cursor:pointer;color:var(--muted);font-size:.9rem}
+#drop{margin-top:12px;border:2px dashed var(--border);border-radius:12px;padding:14px;text-align:center;color:var(--muted);font-size:.9rem}
+#drop.over{border-color:var(--accent);background:var(--sel);color:var(--text)}
+#q{margin:12px 0 0}
+#prog{margin-top:10px}
+#prog progress{width:100%;height:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:12px}
+.tile{position:relative;aspect-ratio:1;margin:0;padding:0;overflow:hidden;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text)}
+.tile img{width:100%;height:100%;object-fit:cover;display:block}
+.tile .ext{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:600;color:var(--muted);font-size:1.1rem}
+.tile .cap{position:absolute;left:0;right:0;bottom:0;padding:14px 6px 4px;font-size:.72rem;line-height:1.2;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.65));white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left}
+.tile .chk{display:none;position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;align-items:center;justify-content:center;font-size:.85rem}
+.tile.sel{outline:3px solid var(--accent);outline-offset:-3px}
+.tile.sel .chk{display:flex}
+.tile.bad::after{content:"Lỗi tải";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--err);font-size:.8rem;background:var(--bg)}
+.empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:30px 0}
+#selBar{margin-top:10px}
+.tabs{display:flex;gap:6px;margin:0 0 12px}
+.tabs button{flex:1;margin:0;padding:10px 8px;background:transparent;color:var(--text);border:1px solid var(--border);line-height:1.25}
+.tabs button[aria-selected="true"]{background:var(--btn);color:#fff;border-color:var(--btn)}
+.tabs .n{opacity:.8;font-size:.85em}
+#viewer{position:fixed;inset:0;z-index:50;background:var(--ov);display:flex;flex-direction:column;color:#fff}
+#viewer .top{display:flex;gap:8px;align-items:center;padding:8px 12px;background:rgba(0,0,0,.55);flex-wrap:wrap}
+#viewer .top button{margin:0;padding:8px 12px}
+#viewer .top .info{flex:1;min-width:0}
+#v-name{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#v-meta{font-size:.8rem;opacity:.75}
+#viewer button.ghost{color:#fff;border-color:rgba(255,255,255,.35)}
+#viewer button.danger{color:#ff8a8a}
+#v-stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:auto;position:relative}
+#v-img{max-width:100%;max-height:100%;object-fit:contain;cursor:zoom-in;margin:auto}
+#v-stage.zoom{display:block}
+#v-stage.zoom #v-img{max-width:none;max-height:none;cursor:zoom-out}
+#v-state{padding:20px;text-align:center;opacity:.85}
+.navb{position:absolute;top:50%;transform:translateY(-50%);margin:0;width:44px;height:64px;padding:0;font-size:1.6rem;background:rgba(0,0,0,.45);color:#fff;border:0;z-index:2}
+#v-prev{left:0;border-radius:0 8px 8px 0}
+#v-next{right:0;border-radius:8px 0 0 8px}
+#pm{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:16px}
+#pm .card{margin:0;width:100%;max-width:380px}
+.pw{position:relative;display:block;margin-top:4px}
+.pw input{margin-top:0;padding-right:44px}
+.pw .eye{position:absolute;top:0;right:0;bottom:0;width:42px;margin:0;padding:0;display:flex;align-items:center;justify-content:center;background:transparent;color:var(--muted);border-radius:0 8px 8px 0}
+.pw .eye:hover,.pw .eye[aria-pressed="true"]{color:var(--accent)}
+.pw .eye svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pw .eye .off{display:none}
+.pw .eye[aria-pressed="true"] .on{display:none}
+.pw .eye[aria-pressed="true"] .off{display:block}
+@media (max-width:640px){
+  .wrap{padding:10px}
+  .card{padding:14px;margin-top:10px;border-radius:10px}
+  .narrow{margin-top:4vh}
+  button{min-height:44px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:6px}
+  #viewer .top{padding:6px 8px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <section id="v-loading" class="card narrow">
+    <p id="loadMsg" class="msg">Đang tải…</p>
+    <button id="retryBtn" type="button" class="ghost" hidden>Thử lại</button>
+  </section>
+
+  <section id="v-repo" class="card narrow" hidden>
+    <h1>Chọn repo lưu ảnh</h1>
+    <p class="muted">Trang này không chạy trên github.io nên cần biết repo dùng để lưu. Khi đã đẩy lên GitHub Pages, repo được nhận tự động từ địa chỉ.</p>
+    <form id="repoForm">
+      <label>Repo (dạng tên-người-dùng/tên-repo)
+        <input id="r-input" autocomplete="off" placeholder="vi-du/kho-anh" required>
+      </label>
+      <button type="submit">Tiếp tục</button>
+      <p id="r-msg" class="msg"></p>
+    </form>
+  </section>
+
+  <section id="v-setup" class="card narrow" hidden>
+    <h1>Thiết lập lần đầu</h1>
+    <p class="muted">Repo chưa có dữ liệu. Ảnh, tên tệp và token đều được mã hóa bằng mật khẩu ngay trên trình duyệt trước khi lên GitHub.</p>
+    <p class="muted" id="s-repo"></p>
+    <form id="setupForm">
+      <label>GitHub token (quyền Contents: Read and write, chỉ cần cho repo này)
+        <input id="s-token" type="password" autocomplete="off" required>
+      </label>
+      <label>Mật khẩu mới (ít nhất 12 ký tự — mất mật khẩu là mất ảnh, không khôi phục được)
+        <input id="s-pw" type="password" autocomplete="new-password" required>
+      </label>
+      <label>Nhập lại mật khẩu
+        <input id="s-pw2" type="password" autocomplete="new-password" required>
+      </label>
+      <button id="s-btn" type="submit">Tạo và lưu</button>
+      <p id="s-msg" class="msg"></p>
+    </form>
+  </section>
+
+  <section id="v-unlock" class="card narrow" hidden>
+    <h1>Kho ảnh</h1>
+    <form id="unlockForm">
+      <label>Mật khẩu
+        <input id="u-pw" type="password" autocomplete="off" required>
+      </label>
+      <button id="u-btn" type="submit">Mở</button>
+      <p id="u-msg" class="msg"></p>
+    </form>
+  </section>
+
+  <section id="v-main" class="card" hidden>
+    <div id="tabs" class="tabs" role="tablist">
+      <button id="tab-g" type="button" role="tab" aria-selected="true">Album ảnh chụp tập thể <span class="n"></span></button>
+      <button id="tab-r" type="button" role="tab" aria-selected="false">Ảnh riêng <span class="n"></span></button>
+    </div>
+    <div class="bar">
+      <span id="stat" class="muted"></span>
+      <span class="spacer"></span>
+      <button id="upBtn" type="button">Tải ảnh lên</button>
+      <button id="selBtn" type="button" class="ghost">Chọn</button>
+      <button id="lockBtn" type="button" class="ghost">Khóa</button>
+    </div>
+    <input id="fileInput" type="file" multiple hidden accept="image/*,.heic,.heif,.avif,.jxl,.dng,.raw,.cr2,.cr3,.crw,.nef,.nrw,.arw,.srf,.sr2,.orf,.rw2,.raf,.pef,.srw,.x3f,.3fr,.erf,.kdc,.mrw,.dcr,.tif,.tiff">
+    <div id="drop"><b id="dropAl"></b> Kéo thả ảnh vào đây, hoặc dán ảnh (Ctrl+V). Chỉ nhận ảnh, tối đa 50 MB mỗi ảnh. Ảnh được lưu đúng từng byte như tệp gốc — không nén, không đổi kích thước.</div>
+    <div id="prog" hidden>
+      <progress id="progBar" value="0" max="1"></progress>
+      <div id="progText" class="muted"></div>
+    </div>
+    <p id="msg" class="msg"></p>
+    <input id="q" type="search" placeholder="Tìm theo tên ảnh…" autocomplete="off" aria-label="Tìm theo tên ảnh">
+    <div id="selBar" class="bar" hidden>
+      <span id="selCount" class="muted"></span>
+      <span class="spacer"></span>
+      <button id="selAll" type="button" class="ghost">Chọn tất cả</button>
+      <button id="selMove" type="button" class="ghost">Chuyển album</button>
+      <button id="selDl" type="button">Tải về</button>
+      <button id="selDel" type="button" class="ghost danger">Xóa</button>
+    </div>
+    <div id="grid" class="grid"></div>
+    <details id="settings">
+      <summary>Quản trị: đổi mật khẩu / token</summary>
+      <label>Mật khẩu quản trị hiện tại (bắt buộc)
+        <input id="o-pw" type="password" autocomplete="off">
+      </label>
+      <label>Mật khẩu quản trị mới (để trống nếu không đổi)
+        <input id="n-pw" type="password" autocomplete="new-password">
+      </label>
+      <label>Nhập lại mật khẩu quản trị mới
+        <input id="n-pw2" type="password" autocomplete="new-password">
+      </label>
+      <label>Mật khẩu người dùng — chỉ xem và tải lên ảnh; xóa ảnh vẫn cần mật khẩu quản trị (để trống nếu không đổi)
+        <input id="n-upw" type="password" autocomplete="new-password">
+      </label>
+      <label>Nhập lại mật khẩu người dùng
+        <input id="n-upw2" type="password" autocomplete="new-password">
+      </label>
+      <label>Token mới (để trống nếu không đổi)
+        <input id="n-token" type="password" autocomplete="off">
+      </label>
+      <button id="applyBtn" type="button" class="ghost">Áp dụng</button>
+      <p class="muted">Đổi mật khẩu không phải mã hóa lại ảnh nên diễn ra gần như tức thì.</p>
+    </details>
+  </section>
+
+</div>
+
+<div id="viewer" hidden>
+  <div class="top">
+    <div class="info"><div id="v-name"></div><div id="v-meta"></div></div>
+    <button id="v-dl" type="button">Tải về bản gốc</button>
+    <button id="v-del" type="button" class="ghost danger">Xóa</button>
+    <button id="v-close" type="button" class="ghost" aria-label="Đóng">✕</button>
+  </div>
+  <div id="v-stage">
+    <button id="v-prev" type="button" class="navb" aria-label="Ảnh trước">‹</button>
+    <button id="v-next" type="button" class="navb" aria-label="Ảnh sau">›</button>
+    <img id="v-img" alt="" hidden>
+    <div id="v-state"></div>
+  </div>
+</div>
+
+<div id="pm" hidden>
+  <div class="card">
+    <h1 id="pm-title"></h1>
+    <label>Nhập mật khẩu quản trị để xác nhận
+      <input id="pm-pw" type="password" autocomplete="off">
+    </label>
+    <div class="bar" style="margin-top:14px">
+      <button id="pm-ok" type="button" class="danger ghost">Xác nhận</button>
+      <button id="pm-cancel" type="button" class="ghost">Hủy</button>
+    </div>
+    <p id="pm-msg" class="msg"></p>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict';
+
+const API = 'https://api.github.com';
+const ITER = 600000;
+const IDLE_MS = 10 * 60 * 1000;
+const MAX_BYTES = 50 * 1024 * 1024;   // mỗi ảnh tối đa 50MB (giới hạn thực tế của Contents API qua trình duyệt)
+const THUMB = 360;
+const WRITE_GAP = 900;                // GitHub giới hạn ~80 lệnh ghi/phút: giữ khoảng cách giữa các lệnh ghi
+const enc = new TextEncoder();
+const dec = new TextDecoder();
+const $ = id => document.getElementById(id);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+const S = { owner: '', repo: '', hdr: null, file: null, sha: null, dek: null, token: null,
+            items: [], rev: 0, query: '', album: 'g' };
+let session = 0;
+
+/* ---------- tiện ích ---------- */
+function show(name) {
+  ['loading', 'repo', 'setup', 'unlock', 'main'].forEach(v => { $('v-' + v).hidden = (v !== name); });
+}
+function setMsg(id, text, kind) {
+  const el = $(id);
+  el.textContent = text || '';
+  el.className = 'msg' + (kind ? ' ' + kind : '');
+}
+function b64(u8) {
+  let s = '';
+  for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000));
+  return btoa(s);
+}
+function unb64(s) {
+  const bin = atob(s);
+  const u = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+  return u;
+}
+function blobToB64(blob) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result.slice(r.result.indexOf(',') + 1));
+    r.onerror = () => rej(r.error || new Error('Không đọc được dữ liệu.'));
+    r.readAsDataURL(blob);
+  });
+}
+function newId() {
+  return Array.from(crypto.getRandomValues(new Uint8Array(8)), x => x.toString(16).padStart(2, '0')).join('');
+}
+function fmtSize(n) {
+  if (n < 1024) return n + ' B';
+  if (n < 1048576) return (n / 1024).toFixed(1) + ' KB';
+  if (n < 1073741824) return (n / 1048576).toFixed(1) + ' MB';
+  return (n / 1073741824).toFixed(2) + ' GB';
+}
+function fold(s) {
+  return String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd');
+}
+function mkErr(msg, fatal, code) {
+  const e = new Error(msg);
+  if (fatal) e.fatal = true;
+  if (code) e.code = code;
+  return e;
+}
+
+/* ---------- mã hóa: mật khẩu -> KEK, KEK bọc DEK ngẫu nhiên, DEK mã hóa ảnh và danh mục ---------- */
+function checkIter(n) {
+  n = n || ITER;
+  if (!Number.isInteger(n) || n < 100000 || n > 2000000) throw new Error('File dữ liệu không hợp lệ (số vòng lặp bất thường).');
+  return n;
+}
+function checkHeader(f) {
+  if (!f || f.v !== 2 || !f.salt || !f.wiv || !f.wk || !f.iv || !f.ct) throw new Error('File index.json không đúng định dạng.');
+  checkIter(f.iter);
+  if (f.u) {
+    if (!f.u.salt || !f.u.wiv || !f.u.wk) throw new Error('File index.json không đúng định dạng.');
+    checkIter(f.u.iter);
+  }
+}
+function hdrOf(f) {
+  const h = { v: f.v, iter: f.iter, salt: f.salt, wiv: f.wiv, wk: f.wk };
+  if (f.u) h.u = f.u;   // lớp bọc khóa của mật khẩu người dùng (nếu có)
+  return h;
+}
+
+async function deriveKek(pw, salt, iter) {
+  const base = await crypto.subtle.importKey('raw', enc.encode(pw), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: iter, hash: 'SHA-256' },
+    base, { name: 'AES-GCM', length: 256 }, false, ['wrapKey', 'unwrapKey']);
+}
+async function makeWrap(pw, dek) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const wiv = crypto.getRandomValues(new Uint8Array(12));
+  const kek = await deriveKek(pw, salt, ITER);
+  const wk = await crypto.subtle.wrapKey('raw', dek, kek, { name: 'AES-GCM', iv: wiv });
+  return { iter: ITER, salt: b64(salt), wiv: b64(wiv), wk: b64(new Uint8Array(wk)) };
+}
+async function makeHeader(pw, dek) {
+  return Object.assign({ v: 2 }, await makeWrap(pw, dek));
+}
+async function openHeader(pw, hdr) {   // trả về DEK, hoặc ném lỗi nếu sai mật khẩu
+  const kek = await deriveKek(pw, unb64(hdr.salt), checkIter(hdr.iter));
+  return crypto.subtle.unwrapKey('raw', unb64(hdr.wk), kek, { name: 'AES-GCM', iv: unb64(hdr.wiv) },
+    { name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
+}
+async function sealIndex(dek, hdr, payload) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: enc.encode('idx') },
+    dek, enc.encode(JSON.stringify(payload)));
+  return Object.assign({}, hdr, { iv: b64(iv), ct: b64(new Uint8Array(ct)) });
+}
+async function openIndexPayload(dek, f) {
+  const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(f.iv), additionalData: enc.encode('idx') },
+    dek, unb64(f.ct));
+  return JSON.parse(dec.decode(pt));
+}
+/* tệp ảnh: iv(12 byte) + ciphertext; AAD gắn với id nên không thể hoán đổi tệp này sang mục khác */
+async function encFile(dek, aad, data) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: enc.encode(aad) }, dek, data);
+  return new Blob([iv, ct]);
+}
+async function decFile(dek, aad, ab) {
+  const u = new Uint8Array(ab);
+  if (u.length < 29) throw new Error('Tệp mã hóa bị hỏng.');
+  return crypto.subtle.decrypt({ name: 'AES-GCM', iv: u.subarray(0, 12), additionalData: enc.encode(aad) }, dek, u.subarray(12));
+}
+function normItems(a) {
+  return (Array.isArray(a) ? a : []).filter(x => x && typeof x.id === 'string' && /^[0-9a-f]{16}$/.test(x.id)).map(x => ({
+    id: x.id, name: String(x.name || 'ảnh'), type: String(x.type || ''), size: +x.size || 0, mod: +x.mod || 0,
+    added: +x.added || 0, w: +x.w || 0, h: +x.h || 0, tt: String(x.tt || ''), so: x.so ? String(x.so) : '', st: x.st ? String(x.st) : '',
+    pv: String(x.pv || ''), sp: x.sp ? String(x.sp) : '',
+    al: x.al === 'r' ? 'r' : 'g'   // g = album tập thể, r = ảnh riêng (ảnh cũ mặc định vào album tập thể)
+  }));
+}
+
+/* ---------- GitHub API ---------- */
+function fileUrl(p) { return `${API}/repos/${S.owner}/${S.repo}/contents/${p}`; }
+function authHeaders(extra) {
+  const h = Object.assign({ Accept: 'application/vnd.github+json' }, extra || {});
+  if (S.token) h.Authorization = 'Bearer ' + S.token;
+  return h;
+}
+function statusErr(status, write) {
+  if (status === 401) return mkErr('Token sai hoặc đã hết hạn.', true);
+  if (status === 403 || status === 429) {
+    return mkErr(write
+      ? 'GitHub từ chối: token thiếu quyền "Contents: Read and write" cho repo này, hoặc GitHub đang giới hạn tốc độ (khoảng 500 lệnh ghi mỗi giờ). Chờ vài phút rồi thử lại.'
+      : 'GitHub tạm chặn truy cập (quá nhiều yêu cầu). Thử lại sau ít phút.', true);
+  }
+  if (status === 404 && write) return mkErr('Không ghi được vào repo: kiểm tra tên repo và quyền của token.', true);
+  return mkErr('GitHub trả về lỗi ' + status + '.');
+}
+let lastWrite = 0;
+async function gap() {
+  const w = lastWrite + WRITE_GAP - Date.now();
+  if (w > 0) await sleep(w);
+  lastWrite = Date.now();
+}
+let chain = Promise.resolve();
+/* GitHub yêu cầu các lệnh ghi (tạo/sửa/xóa) phải tuần tự, không song song */
+function serial(fn) {
+  const p = chain.then(fn);
+  chain = p.catch(() => {});
+  return p;
+}
+async function shaFromList(dir, name) {
+  const r = await fetch(fileUrl(dir) + '?t=' + Date.now(), { headers: authHeaders(), cache: 'no-store' });
+  if (!r.ok) throw statusErr(r.status);
+  const list = await r.json();
+  const e = Array.isArray(list) && list.find(x => x.name === name);
+  if (!e) throw new Error('Không tìm thấy ' + name + ' trên GitHub.');
+  return e.sha;
+}
+async function fetchIndex() {
+  const r = await fetch(fileUrl('index.json') + '?t=' + Date.now(), { headers: authHeaders(), cache: 'no-store' });
+  if (r.status === 404) return null;
+  if (r.status === 401) throw statusErr(401);
+  let sha = null, text = null;
+  if (r.ok) {
+    const j = await r.json();
+    sha = j.sha;
+    if (j.content) text = dec.decode(unb64(j.content.replace(/\s/g, '')));
+  } else if (r.status !== 403) {
+    throw statusErr(r.status);
+  }
+  if (text === null) {
+    // file lớn hơn 1MB: API JSON không kèm nội dung, đọc bản raw
+    const rr = await fetch(fileUrl('index.json') + '?t=' + Date.now(),
+      { headers: authHeaders({ Accept: 'application/vnd.github.raw+json' }), cache: 'no-store' });
+    if (!rr.ok) throw statusErr(rr.status);
+    text = await rr.text();
+    if (!sha) sha = await shaFromList('', 'index.json');
+  }
+  const file = JSON.parse(text);
+  checkHeader(file);
+  return { sha, file };
+}
+async function fetchBlob(path) {
+  const r = await fetch(fileUrl(path), { headers: authHeaders({ Accept: 'application/vnd.github.raw+json' }) });
+  if (r.status === 404) throw new Error('Không tìm thấy tệp trên GitHub (có thể đã bị xóa).');
+  if (!r.ok) throw statusErr(r.status);
+  return r.arrayBuffer();
+}
+async function putContent(path, b64content, sha) {
+  await gap();
+  const body = { message: 'update', content: b64content };
+  if (sha) body.sha = sha;
+  const r = await fetch(fileUrl(path), { method: 'PUT',
+    headers: authHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify(body) });
+  if (r.ok) return (await r.json()).content.sha;
+  if (r.status === 409 || r.status === 422) throw mkErr('Xung đột khi lưu lên GitHub.', false, 'CONFLICT');
+  throw statusErr(r.status, true);
+}
+function putBlob(path, blob) {
+  return serial(async () => {
+    const data = await blobToB64(blob);
+    for (let a = 0; ; a++) {
+      try { return await putContent(path, data, null); }
+      catch (e) { if (e.code === 'CONFLICT' && a < 2) { await sleep(900 * (a + 1)); continue; } throw e; }
+    }
+  });
+}
+async function deleteContent(path, sha) {
+  if (!sha) {
+    const i = path.lastIndexOf('/');
+    try { sha = await shaFromList(path.slice(0, i), path.slice(i + 1)); } catch (e) { return; }   // không có = đã xóa
+  }
+  for (let a = 0; ; a++) {
+    await gap();
+    const r = await fetch(fileUrl(path), { method: 'DELETE',
+      headers: authHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify({ message: 'delete', sha }) });
+    if (r.ok || r.status === 404) return;
+    if ((r.status === 409 || r.status === 422) && a < 2) { await sleep(900 * (a + 1)); continue; }
+    throw statusErr(r.status, true);
+  }
+}
+/* đọc danh mục mới nhất, áp dụng fn, ghi lại; gặp xung đột thì đọc lại và làm lại */
+function mutateIndex(fn, opt) {
+  opt = opt || {};
+  return serial(async () => {
+    for (let a = 0; ; a++) {
+      const r = await fetchIndex();
+      if (!r) throw new Error('index.json không còn trên GitHub.');
+      const cur = await openIndexPayload(S.dek, r.file);
+      const items = fn(normItems(cur.items));
+      const hdr = opt.hdr || hdrOf(r.file);
+      const token = opt.token || cur.token || S.token;
+      const rev = Math.max(cur.rev | 0, getSeen()) + 1;
+      const file = await sealIndex(S.dek, hdr, { rev, token, items });
+      try {
+        const sha = await putContent('index.json', b64(enc.encode(JSON.stringify(file))), r.sha);
+        S.items = items; S.sha = sha; S.file = file; S.hdr = hdr; S.token = token; S.rev = rev; setSeen(rev);
+        return;
+      } catch (e) {
+        if (e.code === 'CONFLICT' && a < 3) continue;
+        throw e;
+      }
+    }
+  });
+}
+
+/* ---------- repo và mốc phiên bản ---------- */
+function detectRepo() {
+  const h = location.hostname;
+  if (h.endsWith('.github.io')) {
+    const owner = h.slice(0, -'.github.io'.length);
+    let seg = location.pathname.split('/').filter(Boolean)[0] || '';
+    if (!seg || /\.html?$/.test(seg)) seg = owner + '.github.io';
+    return { owner, repo: seg };
+  }
+  try {
+    const s = localStorage.getItem('kho-anh-repo');
+    if (s && /^[\w.-]+\/[\w.-]+$/.test(s)) { const p = s.split('/'); return { owner: p[0], repo: p[1] }; }
+  } catch (e) { /* bỏ qua */ }
+  return null;
+}
+function seenKey() { return 'kho-anh-rev:' + S.owner + '/' + S.repo; }
+function getSeen() { try { return parseInt(localStorage.getItem(seenKey()), 10) || 0; } catch (e) { return 0; } }
+function setSeen(v) { try { localStorage.setItem(seenKey(), String(v)); } catch (e) { /* bỏ qua */ } }
+
+/* ---------- luồng khởi động / thiết lập / mở khóa ---------- */
+async function init() {
+  const rp = detectRepo();
+  if (!rp) { show('repo'); $('r-input').focus(); return; }
+  Object.assign(S, rp);
+  if (S.file) { show('unlock'); $('u-pw').focus(); return; }   // vừa khóa: dùng bản mã hóa đã có
+  show('loading');
+  setMsg('loadMsg', 'Đang tải…');
+  $('retryBtn').hidden = true;
+  try {
+    const r = await fetchIndex();
+    if (!r) {
+      const rr = await fetch(`${API}/repos/${S.owner}/${S.repo}`, { headers: { Accept: 'application/vnd.github+json' }, cache: 'no-store' });
+      if (rr.status === 404) throw new Error(`Không tìm thấy repo ${S.owner}/${S.repo}. Repo cần ở chế độ public và đúng tên.`);
+      if (!rr.ok) throw statusErr(rr.status);
+      $('s-repo').textContent = `Repo: ${S.owner}/${S.repo}`;
+      show('setup');
+      $('s-token').focus();
+      return;
+    }
+    S.sha = r.sha; S.file = r.file; S.hdr = hdrOf(r.file);
+    show('unlock');
+    $('u-pw').focus();
+  } catch (e) {
+    setMsg('loadMsg', e.message, 'err');
+    $('retryBtn').hidden = false;
+  }
+}
+
+async function doSetup(ev) {
+  ev.preventDefault();
+  const token = $('s-token').value.trim();
+  const pw = $('s-pw').value;
+  if (!token) return setMsg('s-msg', 'Chưa nhập token.', 'err');
+  if (pw.length < 12) return setMsg('s-msg', 'Mật khẩu cần ít nhất 12 ký tự.', 'err');
+  if (pw !== $('s-pw2').value) return setMsg('s-msg', 'Hai mật khẩu không khớp.', 'err');
+  $('s-btn').disabled = true;
+  setMsg('s-msg', 'Đang mã hóa và lưu…');
+  try {
+    const dek = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
+    const hdr = await makeHeader(pw, dek);
+    const file = await sealIndex(dek, hdr, { rev: 1, token, items: [] });
+    S.token = token;
+    const sha = await serial(() => putContent('index.json', b64(enc.encode(JSON.stringify(file))), null));
+    S.dek = dek; S.hdr = hdr; S.file = file; S.sha = sha; S.items = []; S.rev = 1;
+    setSeen(1);
+    $('s-token').value = ''; $('s-pw').value = ''; $('s-pw2').value = '';
+    enterMain(false);
+    refresh();
+  } catch (e) {
+    S.token = null;
+    setMsg('s-msg', e.message, 'err');
+  } finally {
+    $('s-btn').disabled = false;
+  }
+}
+
+async function doUnlock(ev) {
+  ev.preventDefault();
+  const pw = $('u-pw').value;
+  $('u-btn').disabled = true;
+  setMsg('u-msg', 'Đang giải mã…');
+  try {
+    let dek = null, role = 'admin';
+    try { dek = await openHeader(pw, S.file); } catch (e) { dek = null; }
+    if (!dek && S.file.u) {
+      try { dek = await openHeader(pw, S.file.u); role = 'user'; } catch (e) { dek = null; }
+    }
+    if (!dek) throw new Error('Sai mật khẩu.');
+    let p;
+    try { p = await openIndexPayload(dek, S.file); } catch (e) { throw new Error('Không giải mã được danh mục (file bị hỏng hoặc bị sửa).'); }
+    S.dek = dek; S.role = role; S.hdr = hdrOf(S.file); S.token = p.token || null;
+    S.items = normItems(p.items); S.rev = p.rev | 0;
+    const stale = S.rev < getSeen();
+    $('u-pw').value = '';
+    enterMain(stale);
+    refresh();
+  } catch (e) {
+    setMsg('u-msg', e.message, 'err');
+    $('u-pw').select();
+  } finally {
+    $('u-btn').disabled = false;
+  }
+}
+
+/* sau khi mở: lấy bản danh mục mới nhất (có token nên không bị giới hạn 60 lượt/giờ) */
+async function refresh() {
+  const sess = session;
+  try {
+    const r = await fetchIndex();
+    if (!r || sess !== session || !S.dek || r.sha === S.sha) return;
+    const p = await openIndexPayload(S.dek, r.file);
+    if (sess !== session) return;
+    S.items = normItems(p.items); S.sha = r.sha; S.file = r.file; S.hdr = hdrOf(r.file);
+    if (p.token) S.token = p.token;
+    S.rev = Math.max(S.rev, p.rev | 0);
+    setSeen(Math.max(getSeen(), S.rev));
+    renderGrid();
+  } catch (e) { /* im lặng: vẫn dùng bản đang có */ }
+}
+
+function enterMain(stale) {
+  setSeen(Math.max(getSeen(), S.rev));
+  setMsg('msg', stale ? 'Cảnh báo: dữ liệu trên GitHub cũ hơn bản bạn đã thấy trên thiết bị này. File có thể đã bị đặt lại về bản cũ.' : '', stale ? 'err' : '');
+  S.query = ''; $('q').value = '';
+  selecting = false; sel.clear();
+  initObserver();
+  renderGrid();
+  $('settings').hidden = S.role === 'user';   // người dùng thường không thấy mục đổi mật khẩu
+  $('settings').open = false;
+  show('main');
+  resetIdle();
+}
+
+/* ---------- thư viện ---------- */
+const ALBUM_NAME = { g: 'Album ảnh chụp tập thể', r: 'Ảnh riêng' };
+const sel = new Set();
+let selecting = false;
+const thumbURL = new Map();
+const tq = [];
+let tActive = 0;
+let io = null;
+
+function byId(id) { return S.items.find(x => x.id === id); }
+function visible() {
+  const tk = fold(S.query).split(/\s+/).filter(Boolean);
+  const arr = S.items.filter(x => x.al === S.album).sort((a, b) => b.added - a.added);
+  return tk.length ? arr.filter(it => { const h = fold(it.name); return tk.every(t => h.includes(t)); }) : arr;
+}
+function initObserver() {
+  if (io) io.disconnect();
+  io = new IntersectionObserver(es => {
+    es.forEach(e => { if (e.isIntersecting) { io.unobserve(e.target); queueThumb(e.target); } });
+  }, { rootMargin: '300px' });
+}
+function setThumb(tile, url) {
+  const old = tile.querySelector('img');
+  if (old) { old.src = url; return; }
+  const img = document.createElement('img');
+  img.alt = '';
+  img.draggable = false;
+  img.src = url;
+  tile.insertBefore(img, tile.firstChild);
+  const ph = tile.querySelector('.ext');
+  if (ph) ph.remove();
+}
+function queueThumb(tile) {
+  const it = byId(tile.dataset.id);
+  if (!it || !it.tt) return;
+  if (thumbURL.has(it.id)) { setThumb(tile, thumbURL.get(it.id)); return; }
+  tq.push({ tile, it, sess: session });
+  pump();
+}
+function pump() {
+  while (tActive < 4 && tq.length) {
+    const job = tq.shift();
+    tActive++;
+    loadThumb(job).finally(() => { tActive--; pump(); });
+  }
+}
+async function loadThumb(job) {
+  const { tile, it, sess } = job;
+  try {
+    if (sess !== session) return;
+    const ab = await fetchBlob('t/' + it.id + '.bin');
+    if (sess !== session || !S.dek) return;
+    const pt = await decFile(S.dek, 't:' + it.id, ab);
+    if (sess !== session) return;
+    const url = URL.createObjectURL(new Blob([pt], { type: it.tt }));
+    thumbURL.set(it.id, url);
+    setThumb(tile, url);
+  } catch (e) {
+    if (sess === session) tile.classList.add('bad');
+  }
+}
+function makeTile(it) {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'tile' + (sel.has(it.id) ? ' sel' : '');
+  b.dataset.id = it.id;
+  b.title = it.name;
+  const ext = document.createElement('span');
+  ext.className = 'ext';
+  ext.textContent = (it.name.includes('.') ? it.name.split('.').pop() : 'ảnh').slice(0, 5).toUpperCase();
+  const cap = document.createElement('span');
+  cap.className = 'cap';
+  cap.textContent = it.name;
+  const chk = document.createElement('span');
+  chk.className = 'chk';
+  chk.textContent = '✓';
+  b.append(ext, cap, chk);
+  b.addEventListener('click', () => { if (selecting) toggleSel(it.id); else openViewer(it.id); });
+  return b;
+}
+function renderGrid() {
+  const g = $('grid');
+  g.textContent = '';
+  const list = visible();
+  list.forEach(it => { const t = makeTile(it); g.appendChild(t); io.observe(t); });
+  if (!list.length) {
+    const p = document.createElement('div');
+    p.className = 'empty';
+    p.textContent = S.items.some(x => x.al === S.album) ? 'Không có ảnh nào khớp.' : 'Chưa có ảnh. Bấm "Tải ảnh lên" hoặc kéo thả ảnh vào đây.';
+    g.appendChild(p);
+  }
+  const total = S.items.reduce((s, x) => s + x.size, 0);
+  const mine = S.items.filter(x => x.al === S.album);
+  $('stat').textContent = mine.length + ' ảnh · ' + fmtSize(mine.reduce((s, x) => s + x.size, 0)) + (total > 800 * 1048576 ? ' — toàn kho gần chạm mức khuyến nghị 1GB của repo GitHub' : '');
+  ['g', 'r'].forEach(k => {
+    const t = $('tab-' + k);
+    t.setAttribute('aria-selected', String(k === S.album));
+    t.querySelector('.n').textContent = '(' + S.items.filter(x => x.al === k).length + ')';
+  });
+  $('dropAl').textContent = 'Đang ở "' + ALBUM_NAME[S.album] + '".';
+  $('selMove').textContent = 'Chuyển sang ' + ALBUM_NAME[S.album === 'g' ? 'r' : 'g'];
+  $('selBar').hidden = !selecting;
+  $('selBtn').textContent = selecting ? 'Xong' : 'Chọn';
+  $('selCount').textContent = 'Đã chọn ' + sel.size;
+  $('selDl').disabled = $('selDel').disabled = $('selMove').disabled = !sel.size;
+}
+function toggleSel(id) {
+  if (sel.has(id)) sel.delete(id); else sel.add(id);
+  const t = $('grid').querySelector('.tile[data-id="' + id + '"]');
+  if (t) t.classList.toggle('sel', sel.has(id));
+  $('selCount').textContent = 'Đã chọn ' + sel.size;
+  $('selDl').disabled = $('selDel').disabled = $('selMove').disabled = !sel.size;
+}
+
+/* ---------- xem ảnh gốc ---------- */
+let vList = [], vIdx = -1, vURL = null, vTok = 0, vData = null;
+function openViewer(id) {
+  vList = visible();
+  vIdx = vList.findIndex(x => x.id === id);
+  if (vIdx < 0) return;
+  showViewer();
+}
+function closeViewer() {
+  vTok++;
+  $('viewer').hidden = true;
+  if (vURL) { URL.revokeObjectURL(vURL); vURL = null; }
+  vData = null;
+  const img = $('v-img');
+  img.removeAttribute('src');
+  img.hidden = true;
+}
+async function showViewer() {
+  const it = vList[vIdx];
+  const my = ++vTok;
+  $('viewer').hidden = false;
+  $('v-stage').classList.remove('zoom');
+  $('v-name').textContent = it.name;
+  $('v-meta').textContent = [fmtSize(it.size), it.w ? it.w + '×' + it.h : '', it.added ? new Date(it.added).toLocaleString('vi-VN') : '', it.pv ? 'đang xem bản xem trước, tải về là bản gốc' : ''].filter(Boolean).join(' · ');
+  $('v-prev').hidden = vIdx <= 0;
+  $('v-next').hidden = vIdx >= vList.length - 1;
+  if (vURL) { URL.revokeObjectURL(vURL); vURL = null; }
+  vData = null;
+  const img = $('v-img');
+  img.removeAttribute('src');
+  img.hidden = true;
+  setState('Đang tải và giải mã…');
+  try {
+    const usePrev = !!it.pv;   // có bản xem trước thì hiển thị bản đó; nút tải về luôn lấy bản gốc
+    const ab = await fetchBlob((usePrev ? 'p/' : 'o/') + it.id + '.bin');
+    const pt = await decFile(S.dek, (usePrev ? 'p:' : 'o:') + it.id, ab);
+    if (my !== vTok) return;
+    vData = usePrev ? null : { id: it.id, bytes: pt };
+    if (!usePrev && it.type && !it.type.startsWith('image/')) { setState('Không xem trước được loại tệp này. Bấm "Tải về bản gốc".'); return; }
+    vURL = URL.createObjectURL(new Blob([pt], { type: usePrev ? it.pv : (it.type || 'image/*') }));
+    img.onload = () => { if (my === vTok) setState(''); };
+    img.onerror = () => { if (my === vTok) { img.hidden = true; setState('Trình duyệt không hiển thị được định dạng này. Bấm "Tải về bản gốc".'); } };
+    img.src = vURL;
+    img.hidden = false;
+  } catch (e) {
+    if (my === vTok) setState('Lỗi: ' + e.message);
+  }
+}
+function setState(t) { $('v-state').textContent = t; $('v-state').hidden = !t; }
+function viewerStep(d) {
+  const n = vIdx + d;
+  if (n < 0 || n >= vList.length) return;
+  vIdx = n;
+  showViewer();
+}
+
+/* ---------- tải về nguyên bản ---------- */
+function saveBytes(it, bytes) {
+  const url = URL.createObjectURL(new Blob([bytes], { type: it.type || 'application/octet-stream' }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = it.name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
+async function downloadItem(it) {
+  let bytes = vData && vData.id === it.id ? vData.bytes : null;
+  if (!bytes) bytes = await decFile(S.dek, 'o:' + it.id, await fetchBlob('o/' + it.id + '.bin'));
+  saveBytes(it, bytes);
+}
+async function downloadSelected() {
+  const items = Array.from(sel).map(byId).filter(Boolean);
+  $('selDl').disabled = true;
+  try {
+    for (let i = 0; i < items.length; i++) {
+      setMsg('msg', 'Đang tải về ' + (i + 1) + '/' + items.length + ': ' + items[i].name);
+      await downloadItem(items[i]);
+      await sleep(400);
+    }
+    setMsg('msg', 'Đã tải về ' + items.length + ' ảnh (bản gốc).', 'ok');
+  } catch (e) {
+    setMsg('msg', e.message, 'err');
+  } finally {
+    $('selDl').disabled = !sel.size;
+  }
+}
+
+/* ---------- tải lên ---------- */
+let upBusy = false, stopUpload = false, upDone = null;
+const IMG_EXT = /\.(jpe?g|jfif|png|gif|webp|avif|heic|heif|bmp|tiff?|svg|ico|jxl|dng|raw|cr2|cr3|crw|nef|nrw|arw|srf|sr2|orf|rw2|raf|pef|srw|x3f|3fr|erf|kdc|mrw|dcr)$/i;
+function isImageFile(f) {
+  const t = f.type || '';
+  if (t.startsWith('image/')) return true;
+  if (t && t !== 'application/octet-stream') return false;   // có loại rõ ràng nhưng không phải ảnh (video, pdf...)
+  return IMG_EXT.test(f.name);                                // ảnh RAW/HEIC thường không có loại: dựa vào đuôi tệp
+}
+/* ---------- ảnh xem trước: ảnh mà trình duyệt không hiển thị được (HEIC...) sẽ có thêm một bản WebP/JPEG nhỏ để xem; bản gốc vẫn lưu nguyên từng byte ---------- */
+const WEB_EXT = /\.(jpe?g|jfif|png|gif|webp|avif|svg|bmp|ico)$/i;
+const WEB_TYPE = /^image\/(jpeg|png|gif|webp|avif|svg\+xml|bmp|x-icon|vnd\.microsoft\.icon)$/i;
+const PREVIEW_MAX = 2560;
+function isHeic(f) { return /^image\/hei[cf]/i.test(f.type || '') || /\.(heic|heif)$/i.test(f.name); }
+function isWebImage(f) { return f.type ? WEB_TYPE.test(f.type) : WEB_EXT.test(f.name); }
+let heicLib = null;
+function loadHeic() {   // thư viện heic2any.min.js đặt cùng thư mục với index.html (chỉ cần cho Chrome/Firefox)
+  if (window.heic2any) return Promise.resolve(window.heic2any);
+  if (!heicLib) heicLib = new Promise(res => {
+    const sc = document.createElement('script');
+    sc.src = 'heic2any.min.js';
+    sc.onload = () => res(window.heic2any || null);
+    sc.onerror = () => res(null);
+    document.head.appendChild(sc);
+  });
+  return heicLib;
+}
+async function decodeImage(file) {   // trả về {src, w, h, close} hoặc null nếu không giải mã được
+  const fromBitmap = b => ({ src: b, w: b.width, h: b.height, close: () => { if (b.close) b.close(); } });
+  try { return fromBitmap(await createImageBitmap(file, { imageOrientation: 'from-image' })); } catch (e) { /* thử cách khác */ }
+  let blob = file;
+  if (isHeic(file)) {
+    const lib = await loadHeic();
+    if (!lib) return null;
+    try {
+      const out = await lib({ blob: file, toType: 'image/jpeg', quality: 0.92 });
+      blob = Array.isArray(out) ? out[0] : out;
+    } catch (e) { return null; }
+    try { return fromBitmap(await createImageBitmap(blob)); } catch (e) { /* xuống cách Image */ }
+  }
+  const url = URL.createObjectURL(blob);
+  const img = new Image();
+  img.src = url;
+  try { await img.decode(); } catch (e) { URL.revokeObjectURL(url); return null; }
+  return { src: img, w: img.naturalWidth, h: img.naturalHeight, close: () => URL.revokeObjectURL(url) };
+}
+async function encodeCanvas(c, q) {   // ưu tiên WebP; trình duyệt không tạo được WebP thì lùi về JPEG
+  const w = await new Promise(r => c.toBlob(r, 'image/webp', q));
+  if (w && w.type === 'image/webp') return w;
+  return new Promise(r => c.toBlob(r, 'image/jpeg', Math.min(0.95, q + 0.05)));
+}
+async function makeDerived(file) {
+  const out = { thumb: null, prev: null };
+  const d = await decodeImage(file);
+  if (!d) return out;
+  try {
+    if (!d.w || !d.h) return out;
+    const draw = async (maxSide, q) => {
+      const sc = Math.min(1, maxSide / Math.max(d.w, d.h));
+      const c = document.createElement('canvas');
+      c.width = Math.max(1, Math.round(d.w * sc));
+      c.height = Math.max(1, Math.round(d.h * sc));
+      const g = c.getContext('2d');
+      g.imageSmoothingQuality = 'high';
+      g.drawImage(d.src, 0, 0, c.width, c.height);
+      return encodeCanvas(c, q);
+    };
+    const tb = await draw(THUMB, 0.82);
+    if (tb) out.thumb = { blob: tb, type: tb.type || 'image/webp', w: d.w, h: d.h };
+    if (!isWebImage(file)) {
+      const pb = await draw(PREVIEW_MAX, 0.85);
+      if (pb) out.prev = { blob: pb, type: pb.type || 'image/webp' };
+    }
+  } finally { d.close(); }
+  return out;
+}
+async function uploadOne(f, album) {
+  const id = newId();
+  const buf = await f.arrayBuffer();           // byte gốc, không đụng tới
+  let der = { thumb: null, prev: null };
+  try { der = await makeDerived(f); } catch (e) { /* không tạo được ảnh nhỏ: vẫn lưu bản gốc */ }
+  let thumb = der.thumb, prev = der.prev;
+  const so = await putBlob('o/' + id + '.bin', await encFile(S.dek, 'o:' + id, buf));
+  let st = '', sp = '';
+  if (thumb) {
+    try { st = await putBlob('t/' + id + '.bin', await encFile(S.dek, 't:' + id, await thumb.blob.arrayBuffer())); }
+    catch (e) { if (e.fatal) throw e; thumb = null; }
+  }
+  if (prev) {
+    try { sp = await putBlob('p/' + id + '.bin', await encFile(S.dek, 'p:' + id, await prev.blob.arrayBuffer())); }
+    catch (e) { if (e.fatal) throw e; prev = null; }
+  }
+  return { id, name: f.name, type: f.type || '', size: f.size, mod: f.lastModified || 0, added: Date.now(),
+           w: thumb ? thumb.w : 0, h: thumb ? thumb.h : 0, tt: thumb ? thumb.type : '', so, st,
+           pv: prev ? prev.type : '', sp, al: album };
+}
+function setProg(done, total, text) {
+  $('prog').hidden = false;
+  $('progBar').max = total;
+  $('progBar').value = done;
+  $('progText').textContent = text;
+}
+async function uploadFiles(fileList) {
+  const files = Array.from(fileList || []);
+  const album = S.album;   // ảnh tải lên vào album đang mở
+  if (!files.length || !S.dek) return;
+  if (upBusy) return setMsg('msg', 'Đang tải lên, hãy đợi xong rồi thêm tiếp.', 'err');
+  upBusy = true; stopUpload = false;
+  let resolveDone; upDone = new Promise(r => { resolveDone = r; });
+  $('upBtn').disabled = true;
+  const pending = [], errs = [];
+  let ok = 0, skipped = 0;
+  setMsg('msg', '');
+  const flush = async () => {
+    if (!pending.length) return;
+    const add = pending.splice(0);
+    await mutateIndex(items => items.concat(add.filter(a => !items.some(i => i.id === a.id))));
+    renderGrid();
+  };
+  try {
+    for (let i = 0; i < files.length && !stopUpload; i++) {
+      const f = files[i];
+      setProg(i, files.length, '(' + (i + 1) + '/' + files.length + ') ' + f.name + ' — mã hóa và tải lên…');
+      if (!isImageFile(f)) { errs.push(f.name + ': không phải ảnh (chỉ nhận ảnh)'); continue; }
+      if (!f.size) { errs.push(f.name + ': tệp rỗng'); continue; }
+      if (f.size > MAX_BYTES) { errs.push(f.name + ': lớn hơn ' + fmtSize(MAX_BYTES) + ' (' + fmtSize(f.size) + ')'); continue; }
+      if (S.items.concat(pending).some(x => x.al === album && x.name === f.name && x.size === f.size && x.mod === (f.lastModified || 0))) { skipped++; continue; }
+      try {
+        pending.push(await uploadOne(f, album));
+        ok++;
+        if (pending.length >= 8) await flush();
+      } catch (e) {
+        errs.push(f.name + ': ' + e.message);
+        if (e.fatal) break;
+      }
+    }
+  } finally {
+    try { await flush(); } catch (e) { errs.push('Ảnh đã lên GitHub nhưng chưa vào danh mục: ' + e.message); }
+    setProg(files.length, files.length, 'Xong.');
+    setTimeout(() => { if (!upBusy) $('prog').hidden = true; }, 2500);
+    upBusy = false;
+    $('upBtn').disabled = false;
+    const parts = [];
+    if (ok) parts.push('Đã tải lên ' + ok + ' ảnh vào "' + ALBUM_NAME[album] + '".');
+    if (skipped) parts.push('Bỏ qua ' + skipped + ' ảnh đã có.');
+    if (stopUpload) parts.push('Đã dừng theo yêu cầu.');
+    if (errs.length) parts.push('Lỗi:\n' + errs.join('\n'));
+    setMsg('msg', parts.join('\n') || 'Không có gì để tải lên.', errs.length ? 'err' : 'ok');
+    resolveDone();
+  }
+}
+
+/* ---------- xác nhận mật khẩu và xóa ---------- */
+let pmResolve = null, pmBusy = false;
+function askPassword(title) {
+  return new Promise(res => {
+    if (pmResolve) pmResolve(false);
+    pmResolve = res;
+    $('pm-title').textContent = title;
+    $('pm-pw').value = '';
+    setMsg('pm-msg', '');
+    $('pm').hidden = false;
+    $('pm-pw').focus();
+  });
+}
+function closePm(v) {
+  $('pm').hidden = true;
+  $('pm-pw').value = '';
+  const r = pmResolve; pmResolve = null;
+  if (r) r(v);
+}
+async function pmConfirm() {
+  if (pmBusy || !pmResolve) return;
+  const pw = $('pm-pw').value;
+  if (!pw) return setMsg('pm-msg', 'Hãy nhập mật khẩu.', 'err');
+  pmBusy = true; $('pm-ok').disabled = true;
+  setMsg('pm-msg', 'Đang kiểm tra…');
+  try {
+    if (await verifyAdmin(pw)) closePm(true);
+    else { setMsg('pm-msg', 'Sai mật khẩu quản trị.', 'err'); $('pm-pw').select(); }
+  } finally { pmBusy = false; $('pm-ok').disabled = false; }
+}
+async function verifyAdmin(pw) {
+  try { await openHeader(pw, S.hdr); return true; } catch (e) { return false; }
+}
+async function deleteItems(ids) {
+  const items = ids.map(byId).filter(Boolean);
+  if (!items.length) return;
+  const idset = new Set(items.map(x => x.id));
+  setMsg('msg', 'Đang xóa…');
+  try {
+    await mutateIndex(arr => arr.filter(x => !idset.has(x.id)));   // gỡ khỏi danh mục trước
+    ids.forEach(id => { const u = thumbURL.get(id); if (u) { URL.revokeObjectURL(u); thumbURL.delete(id); } sel.delete(id); });
+    renderGrid();
+    let failed = 0, n = 0;
+    for (const it of items) {
+      n++;
+      setMsg('msg', 'Đang xóa tệp trên GitHub ' + n + '/' + items.length + '…');
+      const targets = [['o/' + it.id + '.bin', it.so]];
+      if (it.tt) targets.push(['t/' + it.id + '.bin', it.st]);
+      if (it.pv) targets.push(['p/' + it.id + '.bin', it.sp]);
+      for (const t of targets) {
+        try { await serial(() => deleteContent(t[0], t[1])); } catch (e) { failed++; if (e.fatal) break; }
+      }
+    }
+    setMsg('msg', failed ? 'Đã gỡ ' + items.length + ' ảnh khỏi danh mục nhưng ' + failed + ' tệp chưa xóa được trên GitHub (vẫn được mã hóa).'
+      : 'Đã xóa ' + items.length + ' ảnh. Lưu ý: bản mã hóa cũ vẫn nằm trong lịch sử commit của repo.', failed ? 'err' : 'ok');
+  } catch (e) {
+    setMsg('msg', e.message, 'err');
+  }
+}
+
+/* ---------- cài đặt ---------- */
+async function applySettings() {
+  if (S.role !== 'admin') return setMsg('msg', 'Chỉ quản trị mới được đổi mật khẩu hoặc token.', 'err');
+  const cur = $('o-pw').value, np = $('n-pw').value, nt = $('n-token').value.trim();
+  const nu = $('n-upw').value;
+  if (!np && !nt && !nu) return setMsg('msg', 'Chưa nhập gì để đổi.', 'err');
+  if (!cur) return setMsg('msg', 'Hãy nhập mật khẩu quản trị hiện tại.', 'err');
+  if (np && np.length < 12) return setMsg('msg', 'Mật khẩu quản trị mới cần ít nhất 12 ký tự.', 'err');
+  if (np && np !== $('n-pw2').value) return setMsg('msg', 'Hai lần nhập mật khẩu quản trị mới không khớp.', 'err');
+  if (nu && nu.length < 12) return setMsg('msg', 'Mật khẩu người dùng cần ít nhất 12 ký tự.', 'err');
+  if (nu && nu !== $('n-upw2').value) return setMsg('msg', 'Hai lần nhập mật khẩu người dùng không khớp.', 'err');
+  if (nu && nu === (np || cur)) return setMsg('msg', 'Mật khẩu người dùng phải khác mật khẩu quản trị.', 'err');
+  if (upBusy) return setMsg('msg', 'Đang tải lên, hãy thử lại sau.', 'err');
+  $('applyBtn').disabled = true;
+  setMsg('msg', 'Đang xử lý…');
+  try {
+    if (!(await verifyAdmin(cur))) throw new Error('Mật khẩu quản trị hiện tại không đúng.');
+    let hdr = null;
+    if (np || nu) {
+      hdr = np ? await makeHeader(np, S.dek) : Object.assign({}, S.hdr);
+      if (np && S.hdr.u) hdr.u = S.hdr.u;
+      if (nu) hdr.u = await makeWrap(nu, S.dek);
+    }
+    const oldTok = S.token;
+    if (nt) S.token = nt;   // dùng ngay token mới để ghi (token cũ có thể không còn quyền với repo mới)
+    try { await mutateIndex(a => a, { hdr, token: nt || null }); } catch (e) { S.token = oldTok; throw e; }
+    ['o-pw', 'n-pw', 'n-pw2', 'n-token', 'n-upw', 'n-upw2'].forEach(id => { $(id).value = ''; });
+    setMsg('msg', 'Đã cập nhật.', 'ok');
+  } catch (e) {
+    setMsg('msg', e.message, 'err');
+  } finally {
+    $('applyBtn').disabled = false;
+  }
+}
+
+/* ---------- khóa và tự khóa ---------- */
+function lock() {
+  session++;
+  closeViewer();
+  closePm(false);
+  tq.length = 0;
+  thumbURL.forEach(u => URL.revokeObjectURL(u));
+  thumbURL.clear();
+  if (io) { io.disconnect(); io = null; }
+  clearTimeout(idleTimer);
+  S.dek = null; S.token = null; S.role = ''; S.items = []; S.query = ''; S.rev = 0; S.album = 'g';
+  sel.clear(); selecting = false;
+  $('grid').textContent = '';
+  ['o-pw', 'n-pw', 'n-pw2', 'n-token', 'n-upw', 'n-upw2', 'q'].forEach(id => { $(id).value = ''; });
+  setMsg('msg', '');
+  resetEyes();
+  init();
+}
+let idleTimer = null, lastActive = Date.now();
+function resetIdle() {
+  lastActive = Date.now();
+  clearTimeout(idleTimer);
+  if (S.dek) idleTimer = setTimeout(idleLock, IDLE_MS);
+}
+function idleLock() {
+  if (!S.dek) return;
+  if (upBusy) { resetIdle(); return; }
+  lock();
+}
+['keydown', 'pointerdown', 'input'].forEach(t => document.addEventListener(t, resetIdle, { passive: true }));
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && S.dek && Date.now() - lastActive >= IDLE_MS) idleLock();
+});
+window.addEventListener('pageshow', e => { if (e.persisted && S.dek) lock(); });
+
+/* ---------- sự kiện ---------- */
+$('retryBtn').addEventListener('click', init);
+$('repoForm').addEventListener('submit', ev => {
+  ev.preventDefault();
+  const v = $('r-input').value.trim().replace(/^https?:\/\/github\.com\//, '').replace(/\/+$/, '');
+  if (!/^[\w.-]+\/[\w.-]+$/.test(v)) return setMsg('r-msg', 'Nhập đúng dạng tên-người-dùng/tên-repo.', 'err');
+  try { localStorage.setItem('kho-anh-repo', v); } catch (e) { /* bỏ qua */ }
+  init();
+});
+$('setupForm').addEventListener('submit', doSetup);
+$('unlockForm').addEventListener('submit', doUnlock);
+$('upBtn').addEventListener('click', () => $('fileInput').click());
+$('fileInput').addEventListener('change', () => { const fs = Array.from($('fileInput').files); $('fileInput').value = ''; uploadFiles(fs); });
+$('selBtn').addEventListener('click', () => { selecting = !selecting; if (!selecting) sel.clear(); renderGrid(); });
+['g', 'r'].forEach(k => $('tab-' + k).addEventListener('click', () => {
+  if (S.album === k) return;
+  S.album = k; selecting = false; sel.clear(); S.query = ''; $('q').value = '';
+  renderGrid();
+}));
+$('selMove').addEventListener('click', async () => {
+  const ids = Array.from(sel);
+  if (!ids.length) return;
+  const to = S.album === 'g' ? 'r' : 'g', idset = new Set(ids);
+  $('selMove').disabled = true;
+  setMsg('msg', 'Đang chuyển…');
+  try {
+    await mutateIndex(arr => arr.map(x => idset.has(x.id) ? Object.assign({}, x, { al: to }) : x));
+    sel.clear();
+    renderGrid();
+    setMsg('msg', 'Đã chuyển ' + ids.length + ' ảnh sang "' + ALBUM_NAME[to] + '".', 'ok');
+  } catch (e) {
+    setMsg('msg', e.message, 'err');
+    $('selMove').disabled = !sel.size;
+  }
+});
+$('selAll').addEventListener('click', () => { visible().forEach(x => sel.add(x.id)); renderGrid(); });
+$('selDl').addEventListener('click', downloadSelected);
+$('selDel').addEventListener('click', async () => {
+  const ids = Array.from(sel);
+  if (!ids.length) return;
+  if (await askPassword('Xóa ' + ids.length + ' ảnh đã chọn?')) deleteItems(ids);
+});
+$('q').addEventListener('input', () => { S.query = $('q').value; renderGrid(); });
+$('lockBtn').addEventListener('click', async () => {
+  if (upBusy) {
+    if (!confirm('Đang tải lên. Khóa sẽ dừng việc tải các ảnh còn lại (ảnh đã xong vẫn được lưu). Tiếp tục?')) return;
+    stopUpload = true;
+    await upDone;
+  }
+  lock();
+});
+$('applyBtn').addEventListener('click', applySettings);
+$('pm-ok').addEventListener('click', pmConfirm);
+$('pm-cancel').addEventListener('click', () => closePm(false));
+$('pm-pw').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); pmConfirm(); }
+  else if (e.key === 'Escape') closePm(false);
+});
+$('v-close').addEventListener('click', closeViewer);
+$('v-prev').addEventListener('click', () => viewerStep(-1));
+$('v-next').addEventListener('click', () => viewerStep(1));
+$('v-img').addEventListener('click', () => $('v-stage').classList.toggle('zoom'));
+$('v-dl').addEventListener('click', async () => {
+  const it = vList[vIdx];
+  if (!it) return;
+  $('v-dl').disabled = true;
+  try { await downloadItem(it); } catch (e) { setState('Lỗi: ' + e.message); } finally { $('v-dl').disabled = false; }
+});
+$('v-del').addEventListener('click', async () => {
+  const it = vList[vIdx];
+  if (!it) return;
+  if (!(await askPassword('Xóa "' + it.name + '"?'))) return;
+  closeViewer();
+  await deleteItems([it.id]);
+});
+document.addEventListener('keydown', e => {
+  if (!$('pm').hidden || $('viewer').hidden) return;
+  if (e.key === 'Escape') closeViewer();
+  else if (e.key === 'ArrowLeft') viewerStep(-1);
+  else if (e.key === 'ArrowRight') viewerStep(1);
+});
+const drop = $('drop');
+['dragenter', 'dragover'].forEach(t => $('v-main').addEventListener(t, e => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave', 'drop'].forEach(t => $('v-main').addEventListener(t, e => { e.preventDefault(); if (t === 'drop' || e.target === drop) drop.classList.remove('over'); }));
+$('v-main').addEventListener('drop', e => { drop.classList.remove('over'); if (e.dataTransfer && e.dataTransfer.files.length) uploadFiles(e.dataTransfer.files); });
+document.addEventListener('paste', e => {
+  if (!S.dek || $('v-main').hidden) return;
+  const fs = e.clipboardData && e.clipboardData.files;
+  if (fs && fs.length) { e.preventDefault(); uploadFiles(fs); }
+});
+window.addEventListener('beforeunload', e => { if (upBusy) { e.preventDefault(); e.returnValue = ''; } });
+
+/* ---------- nút con mắt hiện/ẩn mật khẩu ---------- */
+const EYE_SVG = '<svg class="on" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>'
+  + '<svg class="off" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.94 17.94A10.9 10.9 0 0 1 12 19C5 19 1 12 1 12a19.8 19.8 0 0 1 5.06-5.94M9.9 5.24A10.4 10.4 0 0 1 12 5c7 0 11 7 11 7a19.7 19.7 0 0 1-3.17 4.19M14.12 14.12a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>';
+function setupEyes() {
+  document.querySelectorAll('input[type="password"]').forEach(inp => {
+    const wrap = document.createElement('span');
+    wrap.className = 'pw';
+    inp.parentNode.insertBefore(wrap, inp);
+    wrap.appendChild(inp);
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'eye';
+    b.setAttribute('aria-label', 'Hiện mật khẩu');
+    b.setAttribute('aria-pressed', 'false');
+    b.innerHTML = EYE_SVG;
+    b.addEventListener('click', e => {
+      e.preventDefault();
+      const showIt = inp.type === 'password';
+      inp.type = showIt ? 'text' : 'password';
+      b.setAttribute('aria-pressed', showIt ? 'true' : 'false');
+      b.setAttribute('aria-label', showIt ? 'Ẩn mật khẩu' : 'Hiện mật khẩu');
+      inp.focus();
+    });
+    wrap.appendChild(b);
+  });
+}
+function resetEyes() {
+  document.querySelectorAll('.pw').forEach(w => {
+    const inp = w.querySelector('input'), b = w.querySelector('.eye');
+    inp.type = 'password';
+    b.setAttribute('aria-pressed', 'false');
+    b.setAttribute('aria-label', 'Hiện mật khẩu');
+  });
+}
+setupEyes();
+
+init();
+})();
+</script>
+</body>
+</html>
